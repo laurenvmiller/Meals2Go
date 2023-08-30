@@ -8,13 +8,15 @@ import {SafeArea} from './src/components/safe-area.component';
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {RestaurantsContextProvider} from './src/services/restaurants/restaurants.context';
+import {LocationContextProvider} from './src/services/location/location.context';
 
 const Tab = createBottomTabNavigator();
 
 const TAB_ICON = {
   Restaurants: 'md-restaurant',
   Map: 'md-map',
-  Settings: 'md-settings',
+  Settings: 'settings-outline',
 };
 
 const Settings = () => (
@@ -35,6 +37,14 @@ const createScreenOptions = ({route}: {route: any}) => {
     tabBarIcon: ({size, color}: {size: number; color: string}) => (
       <Ionicons name={iconName} size={size} color={color} />
     ),
+    tabBarActiveTintColor: 'tomato',
+    tabBarInactiveTintColor: 'green',
+    tabBarStyle: [
+      {
+        display: 'flex',
+      },
+      null,
+    ],
   };
 };
 
@@ -42,20 +52,46 @@ export default function App() {
   return (
     <>
       <ThemeProvider theme={theme}>
-        <PaperProvider>
-          <NavigationContainer>
-            <Tab.Navigator
-              screenOptions={createScreenOptions}
-              tabBarOptions={{
-                tabBaractiveTintColor: 'tomato',
-                tabBarinactiveTintColor: 'gray',
-              }}>
-              <Tab.Screen name="Restaurants" component={RestaurantsScreen} />
-              <Tab.Screen name="Map" component={Map} />
-              <Tab.Screen name="Settings" component={Settings} />
-            </Tab.Navigator>
-          </NavigationContainer>
-        </PaperProvider>
+        <LocationContextProvider>
+          <RestaurantsContextProvider>
+            <PaperProvider>
+              <NavigationContainer>
+                <Tab.Navigator
+                  screenOptions={{
+                    // tabBarIcon: ({size, color}: {size: number; color: string}) => (
+                    //   <Ionicons name={iconName} size={size} color={color} />
+                    // ),
+                    tabBarActiveTintColor: 'tomato',
+                    tabBarInactiveTintColor: 'green',
+                    tabBarStyle: [
+                      {
+                        display: 'flex',
+                      },
+                      null,
+                    ],
+                  }}>
+                  <Tab.Screen
+                    name="Restaurants"
+                    component={RestaurantsScreen}
+                  />
+                  <Tab.Screen name="Map" component={Map} />
+                  <Tab.Screen
+                    name="Settings"
+                    component={Settings}
+                    options={{
+                      tabBarIcon: ({color, size}) => {
+                        const iconName = (TAB_ICON as any)['Settings'];
+                        return (
+                          <Ionicons name={iconName} size={size} color={color} />
+                        );
+                      },
+                    }}
+                  />
+                </Tab.Navigator>
+              </NavigationContainer>
+            </PaperProvider>
+          </RestaurantsContextProvider>
+        </LocationContextProvider>
       </ThemeProvider>
     </>
   );
